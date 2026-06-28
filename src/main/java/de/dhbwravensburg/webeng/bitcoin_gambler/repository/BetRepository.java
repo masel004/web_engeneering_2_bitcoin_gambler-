@@ -8,4 +8,6 @@ import java.util.List;
 public interface BetRepository extends JpaRepository<Bet, Long> {
 
     List<Bet> findByUserId(Long userId);
+
+    List<Bet> findByResolvedFalse();
 }

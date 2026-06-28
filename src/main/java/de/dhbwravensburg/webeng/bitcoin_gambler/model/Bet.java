@@ -20,6 +20,13 @@ public class Bet {
     @NotBlank
     private String prediction;
 
+    @NotBlank
+    private String timeframe;
+
+    private double priceAtBet;
+
+    private boolean resolved;
+
     private boolean won;
 
     private LocalDateTime placedAt;
@@ -53,6 +60,30 @@ public class Bet {
 
     public void setPrediction(String prediction) {
         this.prediction = prediction;
+    }
+
+    public String getTimeframe() {
+        return timeframe;
+    }
+
+    public void setTimeframe(String timeframe) {
+        this.timeframe = timeframe;
+    }
+
+    public double getPriceAtBet() {
+        return priceAtBet;
+    }
+
+    public void setPriceAtBet(double priceAtBet) {
+        this.priceAtBet = priceAtBet;
+    }
+
+    public boolean isResolved() {
+        return resolved;
+    }
+
+    public void setResolved(boolean resolved) {
+        this.resolved = resolved;
     }
 
     public boolean isWon() {

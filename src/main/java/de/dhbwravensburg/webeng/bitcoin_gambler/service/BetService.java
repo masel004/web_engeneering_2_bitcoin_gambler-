@@ -17,13 +17,16 @@ public class BetService {
     private final BetRepository betRepository;
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
+    private final BitcoinService bitcoinService;
 
     public BetService(BetRepository betRepository,
                       UserRepository userRepository,
-                      TransactionRepository transactionRepository) {
+                      TransactionRepository transactionRepository,
+                      BitcoinService bitcoinService) {
         this.betRepository = betRepository;
         this.userRepository = userRepository;
         this.transactionRepository = transactionRepository;
+        this.bitcoinService = bitcoinService;
     }
 
     public List<Bet> getAllBets() {
@@ -39,7 +42,7 @@ public class BetService {
         return betRepository.findByUserId(userId);
     }
 
-    public Bet placeBet(Long userId, double amount, String prediction) {
+    public Bet placeBet(Long userId, double amount, String prediction, String timeframe) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
@@ -48,22 +51,21 @@ public class BetService {
                     "Insufficient balance. Current: " + user.getBalance() + ", Required: " + amount);
         }
 
+        double currentPrice = bitcoinService.getBitcoinPrice();
+
         user.setBalance(user.getBalance() - amount);
-
-        boolean won = Math.random() > 0.5;
-
-        if (won) {
-            user.setBalance(user.getBalance() + amount * 2);
-        }
+        userRepository.save(user);
 
         Bet bet = new Bet();
         bet.setAmount(amount);
         bet.setPrediction(prediction);
-        bet.setWon(won);
+        bet.setTimeframe(timeframe);
+        bet.setPriceAtBet(currentPrice);
+        bet.setResolved(false);
+        bet.setWon(false);
         bet.setUser(user);
         bet.setPlacedAt(LocalDateTime.now());
 
-        userRepository.save(user);
         Bet savedBet = betRepository.save(bet);
 
         Transaction betTransaction = new Transaction();
@@ -73,16 +75,6 @@ public class BetService {
         betTransaction.setUser(user);
         betTransaction.setBet(savedBet);
         transactionRepository.save(betTransaction);
-
-        if (won) {
-            Transaction winTransaction = new Transaction();
-            winTransaction.setType(TransactionType.BET_WON);
-            winTransaction.setAmount(amount * 2);
-            winTransaction.setTimestamp(LocalDateTime.now());
-            winTransaction.setUser(user);
-            winTransaction.setBet(savedBet);
-            transactionRepository.save(winTransaction);
-        }
 
         return savedBet;
     }

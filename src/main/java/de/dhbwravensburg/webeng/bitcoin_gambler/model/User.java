@@ -19,6 +19,9 @@ public class User {
     @Column(unique = true)
     private String username;
 
+    @JsonIgnore
+    private String passwordHash;
+
     @Min(0)
     private double balance;
 
@@ -60,6 +63,14 @@ public class User {
 
     public void setBalance(double balance) {
         this.balance = balance;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public List<Bet> getBets() {

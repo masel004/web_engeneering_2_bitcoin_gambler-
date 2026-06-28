@@ -15,6 +15,9 @@ public class BetRequest {
     @NotBlank
     private String prediction;
 
+    @NotBlank
+    private String timeframe;
+
     public Long getUserId() {
         return userId;
     }
@@ -37,5 +40,13 @@ public class BetRequest {
 
     public void setPrediction(String prediction) {
         this.prediction = prediction;
+    }
+
+    public String getTimeframe() {
+        return timeframe;
+    }
+
+    public void setTimeframe(String timeframe) {
+        this.timeframe = timeframe;
     }
 }

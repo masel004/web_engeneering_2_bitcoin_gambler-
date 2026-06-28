@@ -40,7 +40,8 @@ public class BetController {
         Bet bet = betService.placeBet(
                 request.getUserId(),
                 request.getAmount(),
-                request.getPrediction()
+                request.getPrediction(),
+                request.getTimeframe()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(bet);
     }

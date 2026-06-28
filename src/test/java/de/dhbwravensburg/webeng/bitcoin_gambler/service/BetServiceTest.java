@@ -31,6 +31,9 @@ class BetServiceTest {
     @Mock
     private TransactionRepository transactionRepository;
 
+    @Mock
+    private BitcoinService bitcoinService;
+
     @InjectMocks
     private BetService betService;
 
@@ -40,7 +43,7 @@ class BetServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         assertThrows(InsufficientBalanceException.class,
-                () -> betService.placeBet(1L, 100, "up"));
+                () -> betService.placeBet(1L, 100, "up", "5m"));
     }
 
     @Test
@@ -48,21 +51,25 @@ class BetServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> betService.placeBet(1L, 100, "up"));
+                () -> betService.placeBet(1L, 100, "up", "5m"));
     }
 
     @Test
-    void placeBet_sufficientBalance_createsBet() {
+    void placeBet_sufficientBalance_createsPendingBet() {
         User user = new User("alice", 500);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(betRepository.save(any(Bet.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(bitcoinService.getBitcoinPrice()).thenReturn(60000.0);
+        when(betRepository.save(any(Bet.class))).thenAnswer(i -> i.getArgument(0));
 
-        Bet result = betService.placeBet(1L, 100, "up");
+        Bet result = betService.placeBet(1L, 100, "up", "5m");
 
         assertNotNull(result);
         assertEquals(100, result.getAmount());
         assertEquals("up", result.getPrediction());
-        verify(userRepository).save(user);
-        verify(betRepository).save(any(Bet.class));
+        assertEquals("5m", result.getTimeframe());
+        assertEquals(60000.0, result.getPriceAtBet());
+        assertFalse(result.isResolved());
+        assertEquals(400, user.getBalance());
+        verify(bitcoinService).getBitcoinPrice();
     }
 }

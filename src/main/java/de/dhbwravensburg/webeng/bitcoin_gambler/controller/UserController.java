@@ -1,5 +1,7 @@
 package de.dhbwravensburg.webeng.bitcoin_gambler.controller;
 
+import de.dhbwravensburg.webeng.bitcoin_gambler.dto.LoginRequest;
+import de.dhbwravensburg.webeng.bitcoin_gambler.dto.RegisterRequest;
 import de.dhbwravensburg.webeng.bitcoin_gambler.model.User;
 import de.dhbwravensburg.webeng.bitcoin_gambler.service.UserService;
 import jakarta.validation.Valid;
@@ -27,6 +29,21 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@Valid @RequestBody RegisterRequest request) {
+        User user = userService.registerUser(
+                request.getUsername(),
+                request.getPassword(),
+                request.getBalance()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    }
+
+    @PostMapping("/login")
+    public User login(@Valid @RequestBody LoginRequest request) {
+        return userService.loginUser(request.getUsername(), request.getPassword());
     }
 
     @PostMapping
