@@ -10,7 +10,7 @@ function UserForm({ onSubmit }) {
     setError('')
 
     if (!username.trim()) {
-      setError('Username is required')
+      setError('Benutzername ist erforderlich')
       return
     }
 
@@ -25,19 +25,19 @@ function UserForm({ onSubmit }) {
 
   return (
     <form onSubmit={handleSubmit} className="card">
-      <h3>Create User</h3>
+      <h3 style={{ fontSize: '1rem' }}>Benutzer erstellen</h3>
       {error && <p className="error">{error}</p>}
       <div className="form-group">
-        <label>Username</label>
+        <label>Benutzername</label>
         <input
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Enter username"
+          placeholder="Benutzername eingeben"
         />
       </div>
       <div className="form-group">
-        <label>Initial Balance ($)</label>
+        <label>Startguthaben ($)</label>
         <input
           type="number"
           value={balance}
@@ -47,7 +47,7 @@ function UserForm({ onSubmit }) {
           step="0.01"
         />
       </div>
-      <button type="submit" className="btn">Create User</button>
+      <button type="submit" className="btn">Erstellen</button>
     </form>
   )
 }

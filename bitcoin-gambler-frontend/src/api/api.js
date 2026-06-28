@@ -28,6 +28,24 @@ export async function createUser(username, balance) {
   return handleResponse(res);
 }
 
+export async function registerUser(username, password, balance) {
+  const res = await fetch(`${API_BASE}/users/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password, balance }),
+  });
+  return handleResponse(res);
+}
+
+export async function loginUser(username, password) {
+  const res = await fetch(`${API_BASE}/users/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  });
+  return handleResponse(res);
+}
+
 export async function updateUser(id, username, balance) {
   const res = await fetch(`${API_BASE}/users/${id}`, {
     method: 'PUT',
@@ -57,11 +75,11 @@ export async function getBetsByUserId(userId) {
   return handleResponse(res);
 }
 
-export async function placeBet(userId, amount, prediction) {
+export async function placeBet(userId, amount, prediction, timeframe) {
   const res = await fetch(`${API_BASE}/bets`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId, amount, prediction }),
+    body: JSON.stringify({ userId, amount, prediction, timeframe }),
   });
   return handleResponse(res);
 }

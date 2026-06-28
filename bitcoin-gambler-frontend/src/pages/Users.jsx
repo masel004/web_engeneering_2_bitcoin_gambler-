@@ -13,15 +13,13 @@ function Users() {
       const data = await getUsers()
       setUsers(data)
     } catch (err) {
-      setError('Failed to load users: ' + err.message)
+      setError('Benutzer konnten nicht geladen werden')
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    fetchUsers()
-  }, [])
+  useEffect(() => { fetchUsers() }, [])
 
   const handleCreateUser = async (username, balance) => {
     await createUser(username, balance)
@@ -29,54 +27,51 @@ function Users() {
   }
 
   const handleDeleteUser = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return
+    if (!window.confirm('Benutzer wirklich löschen?')) return
     try {
       await deleteUser(id)
       await fetchUsers()
     } catch (err) {
-      setError('Failed to delete user: ' + err.message)
+      setError('Löschen fehlgeschlagen: ' + err.message)
     }
   }
 
-  if (loading) return <p>Loading...</p>
+  if (loading) return <div className="container"><p>Laden...</p></div>
 
   return (
-    <div>
-      <h1>Users</h1>
-
+    <div className="container" style={{ maxWidth: '800px' }}>
+      <h1>Benutzer</h1>
       {error && <p className="error">{error}</p>}
 
       <UserForm onSubmit={handleCreateUser} />
 
       <div className="card">
-        <h2>All Users</h2>
+        <h3 style={{ fontSize: '1rem' }}>Alle Benutzer</h3>
         {users.length === 0 ? (
-          <p>No users yet. Create one above.</p>
+          <p style={{ color: '#666' }}>Noch keine Benutzer. Erstelle einen oben.</p>
         ) : (
           <table>
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Username</th>
-                <th>Balance</th>
-                <th>Actions</th>
+                <th>Benutzername</th>
+                <th>Guthaben</th>
+                <th>Aktionen</th>
               </tr>
             </thead>
             <tbody>
               {users.map(user => (
                 <tr key={user.id}>
                   <td>{user.id}</td>
-                  <td>
-                    <Link to={`/users/${user.id}`}>{user.username}</Link>
-                  </td>
+                  <td><Link to={`/users/${user.id}`}>{user.username}</Link></td>
                   <td>${user.balance.toFixed(2)}</td>
                   <td>
                     <button
                       className="btn btn-danger"
-                      style={{ padding: '0.3rem 0.6rem', fontSize: '0.85rem' }}
+                      style={{ padding: '0.3rem 0.7rem', fontSize: '0.8rem' }}
                       onClick={() => handleDeleteUser(user.id)}
                     >
-                      Delete
+                      Löschen
                     </button>
                   </td>
                 </tr>

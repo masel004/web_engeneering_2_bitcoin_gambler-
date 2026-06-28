@@ -14,7 +14,7 @@ function BetDetail() {
         const data = await getBetById(id)
         setBet(data)
       } catch (err) {
-        setError('Failed to load bet: ' + err.message)
+        setError('Wette konnte nicht geladen werden')
       } finally {
         setLoading(false)
       }
@@ -22,54 +22,53 @@ function BetDetail() {
     fetchBet()
   }, [id])
 
-  if (loading) return <p>Loading...</p>
-  if (!bet) return <p className="error">{error || 'Bet not found'}</p>
+  if (loading) return <div className="container"><p>Laden...</p></div>
+  if (!bet) return <div className="container"><p className="error">{error || 'Wette nicht gefunden'}</p></div>
 
   return (
-    <div>
-      <h1>Bet #{bet.id}</h1>
-
+    <div className="container" style={{ maxWidth: '600px' }}>
+      <h1>Wette #{bet.id}</h1>
       {error && <p className="error">{error}</p>}
 
       <div className="card">
-        <h2>Details</h2>
+        <h3 style={{ fontSize: '1rem' }}>Details</h3>
         <table>
           <tbody>
             <tr>
-              <td><strong>User</strong></td>
-              <td>
-                <Link to={`/users/${bet.user?.id}`}>{bet.user?.username}</Link>
-              </td>
+              <td style={{ color: '#888' }}>Benutzer</td>
+              <td><Link to={`/users/${bet.user?.id}`}>{bet.user?.username}</Link></td>
             </tr>
             <tr>
-              <td><strong>Amount</strong></td>
+              <td style={{ color: '#888' }}>Betrag</td>
               <td>${bet.amount.toFixed(2)}</td>
             </tr>
             <tr>
-              <td><strong>Prediction</strong></td>
-              <td>{bet.prediction}</td>
+              <td style={{ color: '#888' }}>Vorhersage</td>
+              <td>{bet.prediction === 'up' ? 'Steigt' : 'Fällt'}</td>
             </tr>
             <tr>
-              <td><strong>Result</strong></td>
+              <td style={{ color: '#888' }}>Ergebnis</td>
               <td>
                 <span className={`badge ${bet.won ? 'badge-won' : 'badge-lost'}`}>
-                  {bet.won ? 'Won' : 'Lost'}
+                  {bet.won ? 'Gewonnen' : 'Verloren'}
                 </span>
               </td>
             </tr>
             <tr>
-              <td><strong>Payout</strong></td>
-              <td>{bet.won ? `$${(bet.amount * 2).toFixed(2)}` : '$0.00'}</td>
+              <td style={{ color: '#888' }}>Auszahlung</td>
+              <td style={{ color: bet.won ? '#00c853' : '#ff3d3d' }}>
+                {bet.won ? `$${(bet.amount * 2).toFixed(2)}` : '$0.00'}
+              </td>
             </tr>
             <tr>
-              <td><strong>Date</strong></td>
-              <td>{bet.placedAt ? new Date(bet.placedAt).toLocaleString() : '-'}</td>
+              <td style={{ color: '#888' }}>Datum</td>
+              <td>{bet.placedAt ? new Date(bet.placedAt).toLocaleString('de-DE') : '-'}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <Link to="/bets">Back to Bets</Link>
+      <Link to="/bets" className="btn btn-outline">Zurück zu Wetten</Link>
     </div>
   )
 }

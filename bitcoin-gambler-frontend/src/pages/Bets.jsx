@@ -13,7 +13,7 @@ function Bets() {
         const data = await getBets()
         setBets(data.reverse())
       } catch (err) {
-        setError('Failed to load bets: ' + err.message)
+        setError('Wetten konnten nicht geladen werden')
       } finally {
         setLoading(false)
       }
@@ -21,21 +21,20 @@ function Bets() {
     fetchBets()
   }, [])
 
-  if (loading) return <p>Loading...</p>
+  if (loading) return <div className="container"><p>Laden...</p></div>
 
   return (
-    <div>
-      <h1>All Bets</h1>
-
+    <div className="container" style={{ maxWidth: '900px' }}>
+      <h1>Alle Wetten</h1>
       {error && <p className="error">{error}</p>}
 
       <div style={{ marginBottom: '1rem' }}>
-        <Link to="/place-bet" className="btn">Place a Bet</Link>
+        <Link to="/" className="btn">Wette platzieren</Link>
       </div>
 
       {bets.length === 0 ? (
         <div className="card">
-          <p>No bets placed yet.</p>
+          <p style={{ color: '#666' }}>Noch keine Wetten platziert.</p>
         </div>
       ) : (
         <div className="card">
@@ -43,28 +42,26 @@ function Bets() {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>User</th>
-                <th>Amount</th>
-                <th>Prediction</th>
-                <th>Result</th>
-                <th>Date</th>
+                <th>Benutzer</th>
+                <th>Betrag</th>
+                <th>Vorhersage</th>
+                <th>Ergebnis</th>
+                <th>Datum</th>
               </tr>
             </thead>
             <tbody>
               {bets.map(bet => (
                 <tr key={bet.id}>
                   <td><Link to={`/bets/${bet.id}`}>#{bet.id}</Link></td>
-                  <td>
-                    <Link to={`/users/${bet.user?.id}`}>{bet.user?.username}</Link>
-                  </td>
+                  <td><Link to={`/users/${bet.user?.id}`}>{bet.user?.username}</Link></td>
                   <td>${bet.amount.toFixed(2)}</td>
-                  <td>{bet.prediction}</td>
+                  <td>{bet.prediction === 'up' ? 'Steigt' : 'Fällt'}</td>
                   <td>
                     <span className={`badge ${bet.won ? 'badge-won' : 'badge-lost'}`}>
-                      {bet.won ? 'Won' : 'Lost'}
+                      {bet.won ? 'Gewonnen' : 'Verloren'}
                     </span>
                   </td>
-                  <td>{bet.placedAt ? new Date(bet.placedAt).toLocaleString() : '-'}</td>
+                  <td>{bet.placedAt ? new Date(bet.placedAt).toLocaleString('de-DE') : '-'}</td>
                 </tr>
               ))}
             </tbody>

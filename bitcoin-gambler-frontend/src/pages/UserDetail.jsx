@@ -22,77 +22,73 @@ function UserDetail() {
       setBets(betsData)
       setTransactions(transData)
     } catch (err) {
-      setError('Failed to load user: ' + err.message)
+      setError('Benutzer konnte nicht geladen werden')
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    fetchData()
-  }, [id])
+  useEffect(() => { fetchData() }, [id])
 
   const handleDeposit = async (e) => {
     e.preventDefault()
     const amount = parseFloat(depositAmount)
     if (!amount || amount <= 0) return
-
     try {
       await deposit(parseInt(id), amount)
       setDepositAmount('')
       await fetchData()
     } catch (err) {
-      setError('Deposit failed: ' + err.message)
+      setError('Einzahlung fehlgeschlagen: ' + err.message)
     }
   }
 
-  if (loading) return <p>Loading...</p>
-  if (!user) return <p className="error">{error || 'User not found'}</p>
+  if (loading) return <div className="container"><p>Laden...</p></div>
+  if (!user) return <div className="container"><p className="error">{error || 'Benutzer nicht gefunden'}</p></div>
 
   return (
-    <div>
+    <div className="container" style={{ maxWidth: '900px' }}>
       <h1>{user.username}</h1>
-
       {error && <p className="error">{error}</p>}
 
       <div className="card">
-        <h2>Profile</h2>
+        <h3 style={{ fontSize: '1rem' }}>Profil</h3>
         <p><strong>ID:</strong> {user.id}</p>
-        <p><strong>Balance:</strong> ${user.balance.toFixed(2)}</p>
+        <p><strong>Guthaben:</strong> <span style={{ color: '#00c853', fontWeight: 600 }}>${user.balance.toFixed(2)}</span></p>
 
         <form onSubmit={handleDeposit} style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
           <input
             type="number"
             value={depositAmount}
             onChange={(e) => setDepositAmount(e.target.value)}
-            placeholder="Amount"
+            placeholder="Betrag"
             min="0.01"
             step="0.01"
             style={{
               padding: '0.5rem',
-              background: '#16213e',
-              border: '1px solid #2a2a3e',
-              borderRadius: '6px',
+              background: '#12151a',
+              border: '1px solid #2a2d35',
+              borderRadius: '8px',
               color: '#e0e0e0'
             }}
           />
-          <button type="submit" className="btn">Deposit</button>
+          <button type="submit" className="btn">Einzahlen</button>
         </form>
       </div>
 
       <div className="card">
-        <h2>Bets ({bets.length})</h2>
+        <h3 style={{ fontSize: '1rem' }}>Wetten ({bets.length})</h3>
         {bets.length === 0 ? (
-          <p>No bets placed yet. <Link to="/place-bet">Place one now</Link></p>
+          <p style={{ color: '#666' }}>Noch keine Wetten. <Link to="/">Jetzt wetten</Link></p>
         ) : (
           <table>
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Amount</th>
-                <th>Prediction</th>
-                <th>Result</th>
-                <th>Date</th>
+                <th>Betrag</th>
+                <th>Vorhersage</th>
+                <th>Ergebnis</th>
+                <th>Datum</th>
               </tr>
             </thead>
             <tbody>
@@ -100,13 +96,13 @@ function UserDetail() {
                 <tr key={bet.id}>
                   <td><Link to={`/bets/${bet.id}`}>#{bet.id}</Link></td>
                   <td>${bet.amount.toFixed(2)}</td>
-                  <td>{bet.prediction}</td>
+                  <td>{bet.prediction === 'up' ? 'Steigt' : 'Fällt'}</td>
                   <td>
                     <span className={`badge ${bet.won ? 'badge-won' : 'badge-lost'}`}>
-                      {bet.won ? 'Won' : 'Lost'}
+                      {bet.won ? 'Gewonnen' : 'Verloren'}
                     </span>
                   </td>
-                  <td>{bet.placedAt ? new Date(bet.placedAt).toLocaleString() : '-'}</td>
+                  <td>{bet.placedAt ? new Date(bet.placedAt).toLocaleString('de-DE') : '-'}</td>
                 </tr>
               ))}
             </tbody>
@@ -115,24 +111,26 @@ function UserDetail() {
       </div>
 
       <div className="card">
-        <h2>Transactions ({transactions.length})</h2>
+        <h3 style={{ fontSize: '1rem' }}>Transaktionen ({transactions.length})</h3>
         {transactions.length === 0 ? (
-          <p>No transactions yet.</p>
+          <p style={{ color: '#666' }}>Noch keine Transaktionen.</p>
         ) : (
           <table>
             <thead>
               <tr>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Date</th>
+                <th>Typ</th>
+                <th>Betrag</th>
+                <th>Datum</th>
               </tr>
             </thead>
             <tbody>
               {transactions.map(tx => (
                 <tr key={tx.id}>
-                  <td>{tx.type}</td>
-                  <td>${tx.amount.toFixed(2)}</td>
-                  <td>{tx.timestamp ? new Date(tx.timestamp).toLocaleString() : '-'}</td>
+                  <td>{tx.type === 'DEPOSIT' ? 'Einzahlung' : tx.type === 'BET_PLACED' ? 'Wetteinsatz' : tx.type === 'BET_WON' ? 'Gewinn' : tx.type}</td>
+                  <td style={{ color: tx.type === 'BET_WON' || tx.type === 'DEPOSIT' ? '#00c853' : '#ff3d3d' }}>
+                    {tx.type === 'BET_PLACED' ? '-' : '+'}${tx.amount.toFixed(2)}
+                  </td>
+                  <td>{tx.timestamp ? new Date(tx.timestamp).toLocaleString('de-DE') : '-'}</td>
                 </tr>
               ))}
             </tbody>
