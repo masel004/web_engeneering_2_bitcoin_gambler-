@@ -8,11 +8,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,6 +22,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private BCryptPasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserService userService;
@@ -65,5 +70,29 @@ class UserServiceTest {
         when(userRepository.existsById(1L)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class, () -> userService.deleteUser(1L));
+    }
+
+    @Test
+    void registerUser_hashesPassword() {
+        when(userRepository.existsByUsername("alice")).thenReturn(false);
+        when(passwordEncoder.encode("secret")).thenReturn("$2a$hashed");
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
+        User result = userService.registerUser("alice", "secret", 500);
+
+        assertEquals("alice", result.getUsername());
+        assertEquals("$2a$hashed", result.getPasswordHash());
+        verify(passwordEncoder).encode("secret");
+    }
+
+    @Test
+    void loginUser_wrongPassword_throwsException() {
+        User user = new User("alice", 100);
+        user.setPasswordHash("$2a$hashed");
+        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrong", "$2a$hashed")).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> userService.loginUser("alice", "wrong"));
     }
 }
